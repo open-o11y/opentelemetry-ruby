@@ -46,7 +46,7 @@ module OpenTelemetry
         # this exporter is registered to a {OpenTelemetry::SDK::Trace::Tracer}
         # object.
         #
-        # @param [optional Numeric] timeout An optional timeout in seconds. 
+        # @param [optional Numeric] timeout An optional timeout in seconds.
         def shutdown(timeout: nil)
           @shutdown = true
         end

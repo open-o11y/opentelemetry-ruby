@@ -74,7 +74,7 @@ module OpenTelemetry
           # the process after an invocation, but before the `Processor` exports
           # the completed spans.
           #
-          # @param [optional Numeric] timeout An optional timeout in seconds. 
+          # @param [optional Numeric] timeout An optional timeout in seconds.
           def force_flush(timeout: nil)
             start_time = Time.now
             snapshot = lock { spans.shift(spans.size) }
@@ -88,7 +88,7 @@ module OpenTelemetry
           # shuts the consumer thread down and flushes the current accumulated buffer
           # will block until the thread is finished
           #
-          # @param [optional Numeric] timeout An optional timeout in seconds. 
+          # @param [optional Numeric] timeout An optional timeout in seconds.
           def shutdown(timeout: nil)
             start_time = Time.now
             lock do
@@ -106,10 +106,10 @@ module OpenTelemetry
           attr_reader :spans, :max_queue_size, :batch_size
 
           def maybe_timeout(timeout, start_time)
-            unless timeout.nil?
-              timeout = timeout - (Time.now - start_time)
-              timeout.positive? ? timeout : 0
-            end
+            return nil if timeout.nil?
+
+            timeout -= (Time.now - start_time)
+            timeout.positive? ? timeout : 0
           end
 
           def work
