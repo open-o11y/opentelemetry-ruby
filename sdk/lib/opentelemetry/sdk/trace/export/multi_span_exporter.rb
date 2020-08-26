@@ -38,16 +38,9 @@ module OpenTelemetry
           #
           # @param [optional Numeric] timeout An optional timeout in seconds.
           def shutdown(timeout: nil)
-            if timeout.nil?
-              @span_exporters.each(&:shutdown)
-            else
-              start_time = Time.now
-              @span_exporters.each do |processor|
-                remaining_timeout = timeout - (Time.now - start_time)
-                break unless remaining_timeout.positive?
-
-                processor.shutdown(timeout: timeout)
-              end
+            start_time = Time.now
+            @span_exporters.each do |processor|
+              processor.shutdown(timeout: Internal.maybe_timeout(timeout, start_time))
             end
           end
 

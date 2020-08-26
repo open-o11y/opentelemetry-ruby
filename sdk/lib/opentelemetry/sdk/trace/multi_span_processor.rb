@@ -51,16 +51,9 @@ module OpenTelemetry
         #
         # @param [optional Numeric] timeout An optional timeout in seconds.
         def force_flush(timeout: nil)
-          if timeout.nil?
-            @span_processors.each(&:force_flush)
-          else
-            start_time = Time.now
-            @span_processors.each do |processor|
-              remaining_timeout = timeout - (Time.now - start_time)
-              break unless remaining_timeout.positive?
-
-              processor.force_flush(timeout: timeout)
-            end
+          start_time = Time.now
+          @span_processors.each do |processor|
+            processor.force_flush(timeout: Internal.maybe_timeout(timeout, start_time))
           end
         end
 
@@ -68,16 +61,9 @@ module OpenTelemetry
         #
         # @param [optional Numeric] timeout An optional timeout in seconds.
         def shutdown(timeout: nil)
-          if timeout.nil?
-            @span_processors.each(&:shutdown)
-          else
-            start_time = Time.now
-            @span_processors.each do |processor|
-              remaining_timeout = timeout - (Time.now - start_time)
-              break unless remaining_timeout.positive?
-
-              processor.shutdown(timeout: timeout)
-            end
+          start_time = Time.now
+          @span_processors.each do |processor|
+            processor.shutdown(timeout: Internal.maybe_timeout(timeout, start_time))
           end
         end
       end
