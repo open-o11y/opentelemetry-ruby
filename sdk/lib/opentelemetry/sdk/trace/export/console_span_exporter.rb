@@ -30,7 +30,7 @@ module OpenTelemetry
             ResultCodes::SUCCESS
           end
 
-          def shutdown
+          def shutdown(timeout: nil)
             @stopped = true
           end
         end

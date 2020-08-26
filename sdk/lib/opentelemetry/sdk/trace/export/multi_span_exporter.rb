@@ -35,8 +35,19 @@ module OpenTelemetry
 
           # Called when {TracerProvider#shutdown} is called, if this exporter is
           # registered to a {TracerProvider} object.
-          def shutdown
-            @span_exporters.each(&:shutdown)
+          #
+          # @param [optional Numeric] timeout An optional timeout in seconds. 
+          def shutdown(timeout: nil)
+            if timeout.nil?
+              @span_exporters.each(&:shutdown)
+            else
+              start_time = Time.now
+              @span_exporters.each do |processor|
+                remaining_timeout = timeout - (Time.now - start_time)
+                break unless remaining_timeout.positive?
+                processor.shutdown(timeout: timeout)
+              end
+            end
           end
 
           private

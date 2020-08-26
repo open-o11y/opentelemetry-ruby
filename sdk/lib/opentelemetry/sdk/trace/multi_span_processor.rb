@@ -48,13 +48,35 @@ module OpenTelemetry
         # necessary, such as when using some FaaS providers that may suspend
         # the process after an invocation, but before the `Processor` exports
         # the completed spans.
-        def force_flush
-          @span_processors.each(&:force_flush)
+        #
+        # @param [optional Numeric] timeout An optional timeout in seconds. 
+        def force_flush(timeout: nil)
+          if timeout.nil?
+            @span_processors.each(&:force_flush)
+          else
+            start_time = Time.now
+            @span_processors.each do |processor|
+              remaining_timeout = timeout - (Time.now - start_time)
+              break unless remaining_timeout.positive?
+              processor.force_flush(timeout: timeout)
+            end
+          end
         end
 
         # Called when {TracerProvider#shutdown} is called.
-        def shutdown
-          @span_processors.each(&:shutdown)
+        #
+        # @param [optional Numeric] timeout An optional timeout in seconds. 
+        def shutdown(timeout: nil)
+          if timeout.nil?
+            @span_processors.each(&:shutdown)
+          else
+            start_time = Time.now
+            @span_processors.each do |processor|
+              remaining_timeout = timeout - (Time.now - start_time)
+              break unless remaining_timeout.positive?
+              processor.shutdown(timeout: timeout)
+            end
+          end
         end
       end
     end

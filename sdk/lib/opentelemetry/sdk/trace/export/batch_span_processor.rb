@@ -73,9 +73,12 @@ module OpenTelemetry
           # necessary, such as when using some FaaS providers that may suspend
           # the process after an invocation, but before the `Processor` exports
           # the completed spans.
-          def force_flush
+          #
+          # @param [optional Numeric] timeout An optional timeout in seconds. 
+          def force_flush(timeout: nil)
+            start_time = Time.now
             snapshot = lock { spans.shift(spans.size) }
-            until snapshot.empty?
+            until snapshot.empty? || maybe_timeout(timeout, start_time)&.zero?
               batch = snapshot.shift(@batch_size).map!(&:to_span_data)
               result_code = @exporter.export(batch)
               report_result(result_code, batch)
@@ -84,20 +87,30 @@ module OpenTelemetry
 
           # shuts the consumer thread down and flushes the current accumulated buffer
           # will block until the thread is finished
-          def shutdown
+          #
+          # @param [optional Numeric] timeout An optional timeout in seconds. 
+          def shutdown(timeout: nil)
+            start_time = Time.now
             lock do
               @keep_running = false
               @condition.signal
             end
 
-            @thread.join
-            force_flush
-            @exporter.shutdown
+            @thread.join(timeout)
+            force_flush(timeout: maybe_timeout(timeout, start_time))
+            @exporter.shutdown(timeout: maybe_timeout(timeout, start_time))
           end
 
           private
 
           attr_reader :spans, :max_queue_size, :batch_size
+
+          def maybe_timeout(timeout, start_time)
+            unless timeout.nil?
+              timeout = timeout - (Time.now - start_time)
+              timeout.positive? ? timeout : 0
+            end
+          end
 
           def work
             loop do

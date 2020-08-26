@@ -40,10 +40,14 @@ module OpenTelemetry
         # necessary, such as when using some FaaS providers that may suspend
         # the process after an invocation, but before the `Processor` exports
         # the completed spans.
-        def force_flush; end
+        #
+        # @param [optional Numeric] timeout An optional timeout in seconds. 
+        def force_flush(timeout: nil); end
 
         # Called when {TracerProvider#shutdown} is called.
-        def shutdown; end
+        #
+        # @param [optional Numeric] timeout An optional timeout in seconds. 
+        def shutdown(timeout: nil); end
       end
     end
   end
