@@ -14,7 +14,7 @@ Or, if you use [bundler][bundler-home], include `opentelemetry-instrumentation-r
 
 ## Usage
 
-To install dfiohgoiherpihegpihg with the name of the instrumentation.
+To install dfiohgoihefghuopdfghiusdhf the instrumentation.
 
 ```ruby
 OpenTelemetry::SDK.configure do |c|
