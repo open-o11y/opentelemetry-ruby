@@ -38,6 +38,7 @@ jobs:
       continue-on-error: true
       run: |
         brakeman -f sarif -o output.sarif.json .
+        ls
 
     # Upload the SARIF file generated in the previous step
     - name: Upload SARIF
